@@ -1,0 +1,22 @@
+name: Supabase Keep-Alive
+
+# Mantiene activo el proyecto Supabase (plan free se pausa tras 7 días sin queries).
+# Hace una consulta de SOLO LECTURA una vez por día. No escribe ni borra nada.
+
+on:
+  schedule:
+    # Todos los días a las 09:00 UTC (~06:00 Argentina). GitHub usa UTC.
+    - cron: '0 9 * * *'
+  # Permite dispararlo a mano desde la pestaña Actions.
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping de lectura a Supabase
+        run: |
+          curl --fail --silent --show-error \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/categories?select=id&limit=1" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}"
